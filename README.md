@@ -1,2 +1,1 @@
-# taskshare-app
-L'application taskshare
+# taskmanager 
