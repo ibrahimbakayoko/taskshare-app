@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'dnais1210/taskshare'
         DOCKER_CREDENTIALS = 'dockerhub-taskshare'
-        SONARQUBE_ENV = 'Sonarqube'
+        SONARQUBE_ENV = 'SonarQube'
         SONARQUBE_TOKEN = credentials('taskshare-token')
         SONAR_HOST_URL = 'http://192.168.27.21:9000/'
         KUBECONFIG_PATH = '/var/lib/jenkins/.kube/config'
