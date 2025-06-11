@@ -64,7 +64,7 @@ pipeline {
             steps {
                 withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
                     sh """
-                        helm upgrade --install taskshare-backend ./helm-chart \
+                        helm upgrade --install taskshare-backend /home/taskshare-backend/taskshare-backend \
                             --set image.repository=$DOCKER_IMAGE \
                             --set image.tag=$BUILD_NUMBER \
                             -n test --create-namespace
@@ -83,7 +83,7 @@ pipeline {
             steps {
                 withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
                     sh """
-                        helm upgrade --install taskshare-backend ./helm-chart \
+                        helm upgrade --install taskshare-backend /home/taskshare-backend/taskshare-backend \
                             --set image.repository=$DOCKER_IMAGE \
                             --set image.tag=$BUILD_NUMBER \
                             -n taskshare --create-namespace
