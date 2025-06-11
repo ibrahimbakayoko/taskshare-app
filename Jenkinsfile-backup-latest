@@ -7,7 +7,6 @@ pipeline {
         SONARQUBE_ENV = 'Sonarqube'
         SONARQUBE_TOKEN = credentials('taskshare-token')
         SONAR_HOST_URL = 'http://192.168.27.21:9000/'
-        KUBECONFIG_PATH = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -44,50 +43,35 @@ pipeline {
 
         stage('Construire l’image Docker') {
             steps {
-                sh """
-                    docker build -t $DOCKER_IMAGE:$BUILD_NUMBER -t $DOCKER_IMAGE:latest backend/
-                """
+                script {
+                    sh """
+                        docker build -t $DOCKER_IMAGE:$BUILD_NUMBER -t $DOCKER_IMAGE:latest backend/
+                    """
+                }
             }
         }
 
         stage('Pousser sur Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: "$DOCKER_CREDENTIALS", url: ""]) {
-                    sh """
-                        docker push $DOCKER_IMAGE:$BUILD_NUMBER
-                        docker push $DOCKER_IMAGE:latest
-                    """
+                script {
+                    withDockerRegistry([credentialsId: "$DOCKER_CREDENTIALS", url: ""]) {
+                        sh """
+                            docker push $DOCKER_IMAGE:$BUILD_NUMBER
+                            docker push $DOCKER_IMAGE:latest
+                        """
+                    }
                 }
             }
         }
-
-        stage('Déploiement sur TEST') {
+        
+        stage('Déploiement Backend') {
             steps {
-                withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
+                withEnv(["KUBECONFIG=/var/lib/jenkins/.kube/config"]) {
                     sh """
-                        helm upgrade --install taskmanager-backend ./helm-chart \
+                        helm upgrade --install taskmanager-backend-k3s /home/taskmanager-backend-k3s \
                             --set image.repository=$DOCKER_IMAGE \
                             --set image.tag=$BUILD_NUMBER \
-                            -n test --create-namespace
-                    """
-                }
-            }
-        }
-
-        stage('Approval for Production') {
-            steps {
-                input message: "Déployer en production ?"
-            }
-        }
-
-        stage('Déploiement sur PRODUCTION') {
-            steps {
-                withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
-                    sh """
-                        helm upgrade --install taskmanager-backend ./helm-chart \
-                            --set image.repository=$DOCKER_IMAGE \
-                            --set image.tag=$BUILD_NUMBER \
-                            -n production --create-namespace
+                            -n taskmanager --create-namespace
                     """
                 }
             }
@@ -96,7 +80,9 @@ pipeline {
 
     post {
         always {
-            junit 'backend/test-results/results.xml'
+            script {
+                junit 'backend/test-results/results.xml'
+            }
         }
     }
 }
