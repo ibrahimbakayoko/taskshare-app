@@ -21,8 +21,7 @@ pipeline {
             steps {
                 dir('backend') {
                     sh 'npm install'
-                    sh 'npx mocha ./test/basic.test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/results.xml'
-                    sh 'npx nyc report --reporter=text-lcov > coverage.lcov'
+                    sh 'npx nyc --reporter=lcov --reporter=text mocha ./test/basic.test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/results.xml'
                 }
             }
         }
@@ -34,7 +33,7 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=taskmanager \
                         -Dsonar.sources=./backend \
-                        -Dsonar.javascript.lcov.reportPaths=./backend/coverage.lcov \
+                        -Dsonar.javascript.lcov.reportPaths=./backend/coverage/lcov.info \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONARQUBE_TOKEN
                     """
