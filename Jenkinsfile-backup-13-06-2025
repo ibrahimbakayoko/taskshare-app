@@ -65,7 +65,6 @@ pipeline {
                 withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
                     sh """
                         helm upgrade --install taskshare-backend /home/taskshare-backend/taskshare-backend \
-                            -f /home/taskshare-backend/taskshare-backend/values-test.yaml \
                             --set image.repository=$DOCKER_IMAGE \
                             --set image.tag=$BUILD_NUMBER \
                             -n test --create-namespace
@@ -85,7 +84,6 @@ pipeline {
                 withEnv(["KUBECONFIG=$KUBECONFIG_PATH"]) {
                     sh """
                         helm upgrade --install taskshare-backend /home/taskshare-backend/taskshare-backend \
-                            -f /home/taskshare-backend/taskshare-backend/values-prod.yaml \
                             --set image.repository=$DOCKER_IMAGE \
                             --set image.tag=$BUILD_NUMBER \
                             -n taskshare --create-namespace
